@@ -1,0 +1,63 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+struct telephone
+{
+    char name[10];
+    int number;
+    int hours,minutes,seconds;
+    float bill;
+};
+void calculate(struct telephone*);
+void record(struct telephone*);
+FILE* fp;
+void main()
+{
+    int choice;
+    fp=fopen("Telephone_Records.txt","w");
+    fclose(fp);
+    struct telephone* tele;
+    tele=(struct telephone*) malloc(sizeof(struct telephone));
+    do
+    {
+        printf("Enter Registered Name\n");
+        scanf("%s",tele->name);
+        printf("Enter Mobile NUmber\n");
+        scanf("%d",&tele->number);
+        printf("Enter duration of out-going calls in hours minutes and seconds\n");
+        printf("Hours:");
+        scanf("%d",&tele->hours);
+        printf("\n");
+        printf("Minutes: ");
+        scanf("%d",&tele->minutes);
+        printf("\n");
+        printf("Seconds: ");
+        scanf("%d",&tele->seconds);
+        calculate(tele);
+        record(tele);
+        printf("Bill: %f\n",tele->bill);
+        printf("If you want to calculate the bill for another subscription enter 1 or enter 0\n");
+        scanf("%d",&choice);
+    } while (choice!=0);
+}
+void calculate(struct telephone* tel)
+{
+    float talktime=(tel->hours*3600)+(tel->minutes*60)+tel->seconds;
+    printf("Total Number of seconds outgoing calls lasted for: %f\n",talktime);
+    float tt=(talktime/60.0);
+    float cost;
+    printf("Enter cost per minute\n");
+    scanf("%f",&cost);
+    tel->bill=tt*cost;
+}
+void record(struct telephone* te)
+{
+    fp=fopen("Telephone_Records.txt","a");
+    fprintf(fp,"Name: %s\n",te->name);
+    fprintf(fp,"Number: %d\n",te->number);
+    fprintf(fp,"Hours: %d\n",te->hours);
+    fprintf(fp,"Minutes: %d\n",te->minutes);   
+    fprintf(fp,"Seconds: %d\n",te->seconds);
+    fprintf(fp,"Bill: %f",te->bill);
+    fclose(fp);
+}

@@ -1,0 +1,168 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+struct phonebook
+{
+    char name[10];
+    int number;
+};
+FILE* fp;
+char tempn[10];
+int tempnum;
+void recordData(struct phonebook*);
+int searchContact(struct phonebook*);
+void read(struct phonebook*);
+void output(struct phonebook*);
+void deleteContact(struct phonebook*);
+void blue(void);
+void red(void);
+void yellow(void);
+void black(void);
+void main()
+{
+    int ask=0;
+    struct phonebook* contact;
+    contact=(struct phonebook*) malloc(sizeof(struct phonebook));
+    fp=fopen("Phone_Book.txt","a");
+    fclose(fp);
+    int choice;
+    do
+    {
+        red();
+        printf("Menu\n");
+        yellow();
+        printf("1. Add Contact\n");
+        printf("2. Search for Contatc\n");
+        printf("3. Delete Contact\n");
+        printf("4. Exit\n");
+        black();
+        printf("Enter your choice\n");
+        scanf("%d",&choice);
+        switch(choice)
+        {
+            case 1:yellow();
+                   printf("Enter name\n");
+                   scanf("%s",contact->name);
+                   printf("Enter Mobile Number\n");
+                   scanf("%d",&contact->number);
+                   recordData(contact);    
+                   blue();
+                   printf("Contact Successfully Added\n");
+                   break;
+            case 2:yellow();
+                   printf("Enter name\n");
+                   scanf("%s",tempn);
+                   int res=searchContact(contact);
+                   if(res==0)
+                   {
+                    red();
+                    printf("Contact Not Found\n");
+                   }       
+                   else
+                   {
+                    output(contact);
+                   }
+                   break;
+            case 3:yellow();
+                   printf("Enter Name whose contact you want to delete\n");
+                   scanf("%s",tempn);
+                   res=searchContact(contact);
+                   if(res==0)
+                   {
+                    red();
+                    printf("Contact Not Found\n");
+                   }       
+                   else
+                   {
+                    output(contact);
+                    red();
+                    printf("Are you sure you want to delete the contact\n");
+                    printf("Enter one if you are sure or enter zero\n");
+                    scanf("%d",&ask);
+                    if(ask==1)
+                    {
+                        deleteContact(contact);
+                    }
+                   }
+        }
+    } while(choice!=4);   
+}
+void recordData(struct phonebook* p)
+{
+    fp=fopen("Phone_Book.txt","a");
+    printf("Recording Data\n");
+    fprintf(fp,"Name: %s\nNumber: %d\n",p->name,p->number);   
+    fclose(fp);
+}
+int searchContact(struct phonebook* phone)
+{    
+    int found=0;
+    fp=fopen("Phone_Book.txt","r");
+    while(!feof(fp))
+    {
+        read(phone);
+        if(strcmp(phone->name,tempn)==0)
+        {
+            found++;
+            break;
+        }
+    }
+    fclose(fp);
+    return(found);
+}
+void read(struct phonebook* ph)
+{
+    fscanf(fp,"Name: %s\nNumber: %d\n",ph->name,&ph->number);
+}
+void output(struct phonebook* contact)
+{
+    printf("Contact Found\n");
+    printf("Name: %s\n",contact->name);
+    printf("Number: %d\n",contact->number);
+}
+void deleteContact(struct phonebook* contact)
+{
+    struct phonebook* c;
+    c=(struct phonebook*) malloc(sizeof(struct phonebook));
+    fp=fopen("Phone_Book.txt","r");
+    FILE* fp1;
+    fp1=fopen("tempcontact.txt","w");
+    while(!feof(fp))
+    {
+        read(c);
+        if(strcmp(c->name,contact->name)!=0)
+        {
+            fprintf(fp1,"Name: %s\nNumber: %d\n",c->name,c->number);           
+        }
+    }
+    fclose(fp);
+    fclose(fp1);
+    remove("Phone_Book.txt");
+    fp=fopen("Phone_Book.txt","w");
+    fp1=fopen("tempcontact.txt","r");
+    char ch=fgetc(fp1);
+    while(ch!=EOF)
+    {
+        fputc(ch,fp);
+        ch=fgetc(fp1);
+    }
+    fclose(fp1);
+    fclose(fp);
+    remove("tempcontact.txt");
+}
+void blue()
+{
+    printf("\033[0;34m");
+}
+void red()
+{
+    printf("\033[1;31m");
+}
+void yellow()
+{
+    printf("\033[0;33m");
+}
+void black()
+{
+    printf("\033[0;37m");
+}

@@ -1,0 +1,132 @@
+#include <stdio.h>
+#include <string.h>
+#include<stdlib.h>
+struct student 
+{
+    int stuID;
+    char name[50];
+    char address[100];
+    int standard;
+};
+void writeData(struct student*, FILE* );
+void readData(struct student*, FILE* );
+void searchByID(int stuID, FILE* );
+void blue(void);
+void red(void);
+void yellow(void);
+void black(void);
+int main() 
+{
+    red();
+    printf("WELCOME TO STUDENT INFORMATION MANAGEMENT SYSTEM\n");
+    FILE* file = fopen("Students.txt", "a");
+    fclose(file);
+    if (file == NULL) 
+    {
+        printf("Failed to open file.\n");
+        return 1;
+    }
+    int choice;
+    struct student* stuPtr;
+    stuPtr=(struct student*) malloc(sizeof(struct student));
+    do 
+    {
+        blue();
+        printf("MENU\n");
+        printf("1. Add student\n");
+        printf("2. Search student by ID\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        black();
+        scanf("%d", &choice);
+        switch (choice) 
+        {
+            case 1:yellow();
+                printf("Enter student ID: ");
+                scanf("%d", &(stuPtr->stuID));
+                printf("Enter student name: ");
+                scanf("%s", stuPtr->name);
+                printf("Enter student address: ");
+                scanf("%s", stuPtr->address);
+                printf("Enter student standard: ");
+                scanf("%d", &stuPtr->standard);
+                writeData(stuPtr,file);
+                break;
+            case 2:yellow();
+                printf("Enter student ID to search: ");
+                int searchID;
+                scanf("%d", &searchID);
+                searchByID(searchID, file);
+                break;
+            case 3:yellow();
+                printf("Exiting program.\n");
+                break;
+            default:red();
+                printf("Invalid choice. Try again.\n");
+        }
+        getchar();
+    } while (choice != 3);
+    fclose(file);
+    return 0;
+}
+void writeData(struct student* stuPtr,FILE* file) 
+{
+    file = fopen("Students.txt", "a");
+    fprintf(file, "Student ID: %d\n", stuPtr->stuID);
+    fprintf(file, "Name: %s\n", stuPtr->name);
+    fprintf(file, "Address: %s\n", stuPtr->address);
+    fprintf(file, "Standard: %d\n", stuPtr->standard);
+    fclose(file);
+}
+void readData(struct student* stuPtr, FILE* file) 
+{
+    fscanf(file, "Student ID: %d\n", &(stuPtr->stuID));
+    fscanf(file, "Name: %s\n", stuPtr->name);
+    fscanf(file, "Address: %s\n", stuPtr->address);
+    fscanf(file, "Standard: %d\n", &(stuPtr->standard));
+}
+void searchByID(int stuID, FILE* file) 
+{
+    struct student* stu;
+    stu=(struct student*) malloc(sizeof(struct student));
+    int found = 0;
+    file = fopen("Students.txt", "r");
+    while (!feof(file)) 
+    {
+        readData(stu, file);
+        if (stu->stuID == stuID) 
+        {
+            blue();
+            printf("Student Found:\n");
+            printf("Student ID: %d\n", stu->stuID);
+            printf("Name: %s\n", stu->name);
+            printf("Address: %s\n", stu->address);
+            printf("Standard: %d\n", stu->standard);
+            printf("\n");
+            found = 1;
+            break;
+        }
+    }
+    fclose(file);
+    if (!found) 
+    {
+        red();
+        printf("Student not found.\n");
+    }
+}
+void blue()
+{
+    printf("\033[0;34m");
+}
+void red()
+{
+    printf("\033[1;31m");
+}
+void yellow()
+{
+    printf("\033[0;33m");
+}
+void black()
+{
+    printf("\033[0;37m");
+}

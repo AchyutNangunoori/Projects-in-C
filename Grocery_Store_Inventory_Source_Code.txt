@@ -1,0 +1,153 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+struct product
+{
+    char name[20];
+    int stock;
+    int value;
+    int sold;
+};
+typedef struct product product;
+void enter();
+void inventory();
+void list();
+void revenue();
+void main()
+{
+    int choice,done;
+ L1:  
+    printf("\n1.add item\n2.check inventory\n3.list inventory\n4.total units sold\n");
+    scanf("%d",&choice);
+    switch(choice)
+    {
+    case 1: enter();
+            break;
+    case 2: inventory();
+            break;
+    case 3: list();
+            break;
+    case 4: revenue();
+            break;
+    }
+    printf("\ndone? 0 or 1\n");
+    scanf("%d",&done);
+    if(done==1)
+     printf("\nTHANK YOU");
+    else if(done==0)
+     goto L1;
+}
+void enter()
+{
+    FILE *filepointer;
+    product buffer;
+    filepointer = fopen("store.dat","a+");
+    if(filepointer== NULL)
+    {
+     printf("file cant be opened");
+     exit(1);
+    }
+     product product1;
+        printf("enter name of product:");
+        scanf("%s",&product1.name);
+            fseek(filepointer,0,SEEK_SET);
+            while(!feof(filepointer))
+            {
+                fread(&buffer,sizeof(product),1,filepointer);
+                    if(strcmp(product1.name,buffer.name)==0){
+                    printf("product data already stored\n");
+                    exit(1);
+                }
+            }
+        printf("enter the number of items in stock:");
+        scanf("%d",&product1.stock);
+        printf("enter the price of product:");
+        scanf("%d",&product1.value);
+        printf("enter the stock sold to date:");
+        scanf("%d",&product1.sold);
+     fwrite(&product1,sizeof(product1),1,filepointer);
+
+     if(fwrite!=0)
+     {
+        printf("\nentered successfully.");
+     }
+     else
+        printf("error writing file !\n");
+     fclose(filepointer);
+}
+void inventory()
+{
+    int status=0;
+    product buffer;
+    char name[20];
+    FILE *fp;
+    fp=fopen("store.dat","r");
+    if(fp==0)
+    {
+     printf("error openin the file");
+     exit(1);
+    }
+        printf("enter the product u want to check:\n");
+        scanf("%s",&name);
+        fseek(fp,0,SEEK_SET);
+        while(!feof(fp))
+        {
+ 
+            fread(&buffer,sizeof(product),1,fp);
+            if(feof(fp))
+            {
+               break;
+            }       
+            if(strcmp(buffer.name,name)==0)
+            {
+                printf("%s",buffer.name);
+                printf("\nstock=%d",buffer.stock);
+                printf("\nprice=%d",buffer.value);
+                printf("\nsold=%d",buffer.sold);
+                status=1;             
+            }
+        }
+        if(status==0)
+        {
+            printf("no account found");
+        }
+    fclose(fp);
+}
+void list()
+{
+    FILE *fp;
+    product buffer;
+    fp=fopen("store.dat","r");
+    if(fp==0)
+    {
+        printf("error openin the file");
+        exit(1);
+    }
+    fseek(fp,0,SEEK_SET);
+    while(!feof(fp))
+    {
+        fread(&buffer,sizeof(product),1,fp);
+        printf("\n%s\nstock:%d\nprice:%d\nsold units:%d\n",buffer.name,buffer.stock,buffer.value,buffer.sold);
+    }
+    fclose(fp);
+}
+void revenue()
+{
+    int revenue=0;
+    FILE *fp;
+    product buffer;
+    fp=fopen("store.dat","r");
+    if(fp==0)
+    {
+        printf("error opening the file");
+        exit(1);
+    }
+    fseek(fp,0,SEEK_SET);
+    while(!feof(fp))
+    {
+        fread(&buffer,sizeof(product),1,fp);
+         revenue+=(buffer.sold)*(buffer.value);
+    }
+    printf("%d",revenue);
+    fclose(fp);
+}

@@ -1,0 +1,161 @@
+#include<stdio.h>
+#include<string.h>
+#include<conio.h>
+#include<stdlib.h>
+#include<time.h>
+int generaterandom();
+int scorecalculator(char, char);
+int play();
+void blue(void);
+void red(void);
+void yellow(void);
+void black(void);
+int i;
+FILE *fp;
+void main()
+{
+    int pfinal=0,cfinal=0;
+    fp=fopen("GAME_Record.txt","w");
+    blue();
+    printf("WELCOME TO THE ROCK PAPER SCICCOR GAME\n\n");
+    for(i=0;i<3;i++)
+    {
+        int r=play();
+        if(r==1)
+        pfinal++;
+        if(r==0)
+        cfinal++;
+    }
+    blue();
+    printf("\nFinal Result\n");
+    yellow();
+    printf("Your Score:%d\n",pfinal);
+    printf("Computer Score:%d\n\n",cfinal);
+    red();
+    if(pfinal>cfinal)
+    {
+        printf("You Won\n");
+        fputs("You Won",fp);
+    }
+    else if(cfinal>pfinal)
+    {
+        printf("Computer Won\n");
+        fputs("Computer Won",fp);
+    }
+    else
+    {
+        printf("Its a draw\n");
+        fputs("Its a Draw",fp);
+    }
+    fclose(fp);
+}
+int play()
+{
+    //fp=fopen("GAME_Record.txt","a");
+    char resu[12];
+    char cchoice[7];
+    char pchoice[7];
+    char playerchoice, computerchoice;
+    red();
+    printf("Round %d\n",(i+1));
+    yellow();
+    printf("Enter r for rock\n");
+    printf("Enter p for paper\n");
+    printf("Enter s for scissor\n");
+    scanf("%c",&playerchoice);
+    getchar();
+    if(playerchoice=='r')
+    strcpy(pchoice,"rock");
+    else if(playerchoice=='p')
+    strcpy(pchoice,"paper");
+    else
+    strcpy(pchoice,"scissor");
+    int temp=generaterandom();
+    if(temp==0)
+    {
+        computerchoice='r';
+        strcpy(cchoice,"rock");
+    }
+    else if(temp==1)
+    {
+        computerchoice='p';
+        strcpy(cchoice,"paper");
+    }
+    else
+    {
+        computerchoice='s';
+        strcpy(cchoice,"scissor");
+    }
+    blue();
+    printf("Your Choice %c\n",playerchoice);
+    printf("Computer Choice %c\n",computerchoice);
+    fprintf(fp,"Round %d\n",(i+1));
+    fprintf(fp,"Your Choice %s\n",pchoice);
+    fprintf(fp,"Computer Choice %s\n",cchoice);
+    int res=-1;
+    res=scorecalculator(playerchoice,computerchoice);
+    int playerscore=0, computerscore=0;
+    red();
+    if(res==1)
+    {
+        playerscore++;
+        strcpy(resu,"Player Won");
+    }
+    if(res==0)
+    {
+        computerscore++;
+        strcpy(resu,"Computer Won");
+    }
+    fprintf(fp,"%s\n",resu);
+    if(computerscore>playerscore)
+    printf("Computer Won\n");
+    else if(playerscore>computerscore)
+    printf("Player Won\n");
+    else
+    printf("Draw\n");
+    return res;
+}
+int generaterandom()
+{
+    int i, rnum, amount=1,start=0, end=2;
+    srand(time(0));
+    for(i=0; i<amount; i++)
+    {
+        rnum = rand()%(end+1-start)+start;    
+    }
+    getch();
+    return rnum;
+}
+int scorecalculator(char pl,char co)
+{
+    if(pl==co)
+    return(2);
+    else if(pl=='r'&&co=='p')
+    return(0);
+    else if(pl=='r'&&co=='s')
+    return(1);
+    else if(pl=='p'&&co=='r')
+    return(1);
+    else if(pl=='p'&&co=='s')
+    return(0);
+    else if(pl=='s'&&co=='r')
+    return(0);
+    else
+    return(1);
+}
+void blue()
+{
+    printf("\033[0;34m");
+}
+void red()
+{
+    printf("\033[1;31m");
+}
+void yellow()
+{
+    printf("\033[0;33m");
+}
+void black()
+{
+    printf("\033[0;37m");
+}

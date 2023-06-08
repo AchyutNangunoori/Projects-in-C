@@ -1,0 +1,204 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+struct vaccine
+{
+    char name[10];
+    char vaccine_name[20];
+    int date,month,year;
+    char venue[10];
+};
+void recordData(struct vaccine*);
+int checkAppointment();
+void read(struct vaccine*);
+void cancelAppointment();
+void blue(void);
+void red(void);
+void yellow(void);
+void black(void);
+FILE* fp;
+char tempn[10];
+void main()
+{
+    fp=fopen("Vaccine_Registration.txt","a");
+    if(fp==NULL)
+    {
+        red();
+        printf("Unable to open file\n");
+        exit(0);
+    }
+    fclose(fp);
+    struct vaccine* vacc;
+    vacc=(struct vaccine*) malloc(sizeof(struct vaccine));
+    if(vacc==NULL)
+    {
+        red();
+        printf("Memory Allocation Failed\n");
+        exit(0);
+    }
+    int choice,ask;
+    do 
+    {
+        red();
+        printf("MENU\n");
+        blue();
+        printf("1. Book Appointment\n");
+        printf("2. Cancel Appointment\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        black();
+        scanf("%d", &choice);
+        switch (choice) 
+        {
+            case 1:yellow();
+                   printf("Enter Your Name\n");
+                   scanf("%s",vacc->name);
+                   printf("Enter the vaccine Name you want to get administered with\n");
+                   scanf("%s",vacc->vaccine_name);
+                   printf("Enter Date:");
+                   scanf("%d",&vacc->date);
+                   printf("Enter Month:");
+                   scanf("%d",&vacc->month);
+                   printf("Enter Year:");
+                   scanf("%d",&vacc->year);
+L1:                printf("Enter Venue\n");
+                   printf("1.Apollo Hospitals\n");
+                   printf("2.Niloufer Hospitals\n");
+                   printf("3.Care Hospitals\n");
+                   printf("4.Gandhi Hospital\n");
+                   printf("Enter Number\n");
+                   scanf("%d",&ask);
+                   black();
+                   printf("Recording data\n");
+                   if(ask==1)
+                   strcpy(vacc->venue,"Apollo_Hospitals");
+                   else if(ask==2)
+                   strcpy(vacc->venue,"Niloufer_Hospital");
+                   else if(ask==3)
+                   strcpy(vacc->venue,"Care_Hspitals");
+                   else if(ask==4)
+                   strcpy(vacc->venue,"Gandhi_Hospital");
+                   else
+                   {
+                    red();
+                    printf("Invalid Option\n");
+                    goto L1;
+                   }
+                   recordData(vacc);
+                   blue();
+                   printf("Appointment Successfully Booked\n");
+                   break;
+            case 2:yellow();
+                   printf("Enter your name\n");
+                   scanf("%s",&tempn);
+                   int res=checkAppointment();       
+                   if(res==0)
+                   {
+                    red();
+                    printf("Appointment not found\n");
+                   }
+                   else
+                   {
+                    yellow();
+                    printf("Are you sure you want to cancel your appointment\n");
+                    printf("Enter 1 if you are sure or else enter 0\n");
+                    scanf("%d",&ask);
+                    if(ask==1)
+                    {
+                        cancelAppointment();
+                        blue();
+                        printf("Appointment Successfully Canceled\n");
+                    }
+                   }
+        }
+    }while(choice!=3);
+}
+void recordData(struct vaccine* vacc)
+{
+    fp=fopen("Vaccine_Registration.txt","a");
+    fprintf(fp,"Name: %s\n",vacc->name);   
+    fprintf(fp,"Vaccine Name: %s\n",vacc->vaccine_name);
+    fprintf(fp,"Date: %d\n",vacc->date);
+    fprintf(fp,"Month: %d\n",vacc->month);
+    fprintf(fp,"Year: %d\n",vacc->year);
+    fprintf(fp,"Venue: %s\n",vacc->venue);
+    fclose(fp);
+}
+int checkAppointment()
+{
+    int found=0;
+    struct vaccine* vac;
+    vac=(struct vaccine*) malloc(sizeof(struct vaccine));
+    fp=fopen("Vaccine_Registration.txt","r");
+    while(!feof(fp))
+    {
+        read(vac);
+        if(strcmp(vac->name,tempn)==0)
+        {
+            found++;
+            break;
+        }
+    }
+    fclose(fp);
+    return(found);
+}
+void read(struct vaccine* vac)
+{
+    fscanf(fp,"Name: %s\n",vac->name);   
+    fscanf(fp,"Vaccine Name: %s\n",vac->vaccine_name);
+    fscanf(fp,"Date: %d\n",&vac->date);
+    fscanf(fp,"Month: %d\n",&vac->month);
+    fscanf(fp,"Year: %d\n",&vac->year);
+    fscanf(fp,"Venue: %s\n",vac->venue);
+}
+void cancelAppointment()
+{
+    struct vaccine* v;
+    v=(struct vaccine*) malloc(sizeof(struct vaccine));
+    fp=fopen("Vaccine_Registration.txt","r");
+    FILE* fp1;
+    fp1=fopen("tempvaccine.txt","w");
+    while(!feof(fp))
+    {
+        read(v);
+        if(strcmp(tempn,v->name)!=0)
+        {
+            fprintf(fp1,"Name: %s\n",v->name);   
+            fprintf(fp1,"Vaccine Name: %s\n",v->vaccine_name);
+            fprintf(fp1,"Date: %d\n",v->date);
+            fprintf(fp1,"Month: %d\n",v->month);
+            fprintf(fp1,"Year: %d\n",v->year);
+            fprintf(fp1,"Venue: %s\n",v->venue);       
+        }
+    }
+    fclose(fp);
+    fclose(fp1);
+    remove("Vaccine_Registration.txt");
+    fp=fopen("Vaccine_Registration.txt","w");
+    fp1=fopen("tempvaccine.txt","r");
+    char ch=fgetc(fp1);
+    while(ch!=EOF)
+    {
+        fputc(ch,fp);
+        ch=fgetc(fp1);
+    }
+    fclose(fp);
+    fclose(fp1);
+    remove("tempvaccine.txt");
+}
+void blue()
+{
+    printf("\033[0;34m");
+}
+void red()
+{
+    printf("\033[1;31m");
+}
+void yellow()
+{
+    printf("\033[0;33m");
+}
+void black()
+{
+    printf("\033[0;37m");
+}

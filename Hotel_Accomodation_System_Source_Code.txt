@@ -1,0 +1,531 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+struct details
+{
+    char name[10];
+    int phoneNumber;
+    char address[100];
+};
+struct date
+{
+    int day,month,year;
+};
+struct hotel
+{
+    int room_num;
+    int days;
+    struct date d1;
+    struct details d2;
+    char type[10];
+    float cost,bill;
+};
+int checkRoomNumber(int);
+void recordData(struct hotel*);
+void read(struct hotel*);
+int checkRoomName(int);
+void delete(int);
+void update(int, int);
+int checkDetails(int);
+void showDetails(int);
+void blue(void);
+void red(void);
+void yellow(void);
+void black(void);
+FILE* fp;
+char checkname[10];
+int ask;
+void main()
+{
+    fp=fopen("Hotel_Accomodation.txt","a");
+    if(fp==NULL)
+    {
+        red();
+        printf("Error in opening file\n");
+        exit(0);
+    }
+    fclose(fp);
+    int choice,result,res;
+    char roomtype;
+    struct hotel* rooms;
+    rooms=(struct hotel*) malloc(sizeof(struct hotel));
+    if(rooms==NULL)
+    {
+        red();
+        printf("Dynamic Memory Allocation Failed\n");
+        exit(0);
+    }
+    do
+    {
+        red();
+        printf("MENU\n");
+        blue();
+        printf("1. Book Accomodation\n");
+        printf("2. Cancel Accomodation\n");
+        printf("3. Extend Stay\n");
+        printf("4. Exit\n");
+        printf("Enter Your choice\n");
+        black();
+        scanf("%d",&choice);
+        switch(choice)
+        {
+            case 1:yellow();
+L6:                printf("Chose Type of room\n");
+                   printf("1. Deluxe Room----------Rs.2299 per night\n");
+                   printf("2. Suite Room-----------Rs.3499 per night\n");
+                   printf("3. Presidential Suite---Rs.5999 per night\n");
+                   printf("Enter D for deluxe, S for Suite and P for Presidential Suite\n");
+                   getchar();
+                   scanf("%c",&roomtype);
+                   switch(roomtype)
+                   {
+                    case 'D':strcpy(rooms->type,"Deluxe");
+                             rooms->cost=2299;
+L1:                          printf("Enter Room Number you want between 1 to 50\n");
+                             scanf("%d",&ask);
+                             if(ask>=1&&ask<=50)
+                             {
+                                res=checkRoomNumber(ask);
+                                if(res!=0)
+                                {
+                                    printf("Sorry..Room Number already Taken\n");
+                                    printf("Enter a different Room Number\n");
+                                    goto L1;
+                                }
+                             }
+                             break;
+                    case 'S': strcpy(rooms->type,"Suite");
+                              rooms->cost=3499;
+L2:                           printf("Enter Room Number you want between 51 to 80\n");
+                              scanf("%d",&ask);
+                              if(ask>=51&&ask<=80)
+                              {
+                                res=checkRoomNumber(ask);
+                                if(res!=0)
+                                {
+                                    printf("Sorry..Room Number already Taken\n");
+                                    printf("Enter a different Room Number\n");
+                                    goto L2;
+                                }
+                              }
+                             break;        
+                    case 'P':strcpy(rooms->type,"Deluxe");
+                             rooms->cost=5999;
+L3:                          printf("Enter Room Number you want between 81 to 100\n");
+                             scanf("%d",&ask);
+                             if(ask>=81&&ask<=100)
+                             {
+                                res=checkRoomNumber(ask);
+                                if(res!=0)
+                                {
+                                    printf("Sorry..Room Number already Taken\n");
+                                    printf("Enter a different Room Number\n");
+                                    goto L3;
+                                }
+                             }
+                             break;   
+                    default:red();
+                            printf("Invalid Choice\n");      
+                            goto L6;         
+                   }
+                   rooms->room_num=ask;
+                   printf("Enter Number of Nights you want to stay\n");
+                   scanf("%d",&rooms->days);
+                   printf("Enter check-in date\n");
+                   printf("date:");
+                   scanf("%d",&rooms->d1.day);
+                   printf("Month:");
+                   scanf("%d",&rooms->d1.month);
+                   printf("Year:");
+                   scanf("%d",&rooms->d1.year);
+                   rooms->bill=(rooms->cost)*(rooms->days);
+                   printf("Enter Your Name\n");
+                   scanf("%s",rooms->d2.name);
+                   printf("Enter Your Mobile Number\n");
+                   scanf("%d",&rooms->d2.phoneNumber);
+                   printf("Enter Your Address\n");
+                   scanf("%s",rooms->d2.address);
+                   recordData(rooms);
+                   blue();
+                   printf("Room Successfully Booked\n");
+                   printf("Bill: %f\n",rooms->bill);
+                   break;
+            case 2: yellow();
+                    printf("Enter Your Room Number\n");
+                    scanf("%d",&ask);
+                    result=checkDetails(ask);
+                    if(result!=0)
+                    {
+                        int confirm=0;
+                        red();
+                        printf("Are you sure you want to cancel your booking\n");
+                        printf("Enter 1 to confirm cancellation or enter 0\n");
+                        scanf("%d",&confirm);
+                        if(confirm==1)
+                        {
+                            delete(ask);
+                            blue();
+                            printf("Accomodation Successfully Deleted\n");
+                        }
+                    }
+                   break;
+            case 3:yellow();
+                   printf("Enter Your Room Number\n");
+                   scanf("%d",&ask);
+                   result=checkDetails(ask);
+                   if(result!=0)
+                   {
+                        int newstay;
+                        printf("Enter number of nights you want to extent your stay for\n");
+                        scanf("%d",&newstay);
+                        update(newstay,ask);
+                        blue();
+                        printf("Stay Successfully Extended\n");
+                   }      
+                   break;       
+            case 4:yellow();
+                   printf("Enter Your Room Number\n");
+                   scanf("%d",&ask);
+                   result=checkDetails(ask);
+                   if(result!=0)
+                   {
+                    showDetails(ask);
+                   }       
+                   break;
+            case 5:blue();
+                   printf("Thank You\n");
+                   break;
+            default:red();
+                    printf("Invalid Choice\n");              
+        }
+    } while(choice!=5);
+}
+void recordData(struct hotel* rooms)
+{
+    fp=fopen("Hotel_Accomodation.txt","a");
+    if(fp==NULL)
+    {
+        red();
+        printf("Error in opening File\n");
+        exit(0);
+    }
+    fprintf(fp,"Room Number: %d\n",rooms->room_num);
+    fprintf(fp,"Room Type: %s\n",rooms->type);
+    fprintf(fp,"Room Cost: %f\n",rooms->cost);
+    fprintf(fp,"Days: %d\n",rooms->days);
+    fprintf(fp,"Check-in Date: %d-%d-%d\n",rooms->d1.day,rooms->d1.month,rooms->d1.year);
+    fprintf(fp,"Guest Name: %s\n",rooms->d2.name);
+    fprintf(fp,"Mobile Number: %d\n",rooms->d2.phoneNumber);
+    fprintf(fp,"Address: %s\n",rooms->d2.address);
+    fprintf(fp,"Bill: %f\n",rooms->bill);
+    fclose(fp);   
+}
+int checkRoomNumber(int num)
+{
+    int found=0;
+    fp=fopen("Hotel_Accomodation.txt","r");
+    if(fp==NULL)
+    {
+        red();
+        printf("Error in opening File\n");
+        exit(0);
+    }
+    struct hotel* rooms;
+    rooms=(struct hotel*) malloc(sizeof(struct hotel));
+    if(rooms==NULL)
+    {
+        red();
+        printf("Dynamic Memory Allocation Failed\n");
+        exit(0);
+    }
+    while(!feof(fp))
+    {
+        read(rooms);
+        if(rooms->room_num==num)
+        {
+            found++;
+            break;
+        }
+    }
+    fclose(fp);
+    return(found);
+}
+void read(struct hotel* rooms)
+{
+    fscanf(fp,"Room Number: %d\n",&rooms->room_num);
+    fscanf(fp,"Room Type: %s\n",rooms->type);
+    fscanf(fp,"Room Cost: %f\n",&rooms->cost);
+    fscanf(fp,"Days: %d\n",&rooms->days);
+    fscanf(fp,"Check-in Date: %d-%d-%d\n",&rooms->d1.day,&rooms->d1.month,&rooms->d1.year);
+    fscanf(fp,"Guest Name: %s\n",rooms->d2.name);
+    fscanf(fp,"Mobile Number: %d\n",&rooms->d2.phoneNumber);
+    fscanf(fp,"Address: %s\n",rooms->d2.address);
+    fscanf(fp,"Bill: %f\n",&rooms->bill);
+}
+int checkRoomName(int num)
+{
+    int match=0;
+    fp=fopen("Hotel_Accomodation.txt","r");
+    if(fp==NULL)
+    {
+        red();
+        printf("Error in opening File\n");
+        exit(0);
+    }
+    struct hotel* rooms;
+    rooms=(struct hotel*) malloc(sizeof(struct hotel));
+    if(rooms==NULL)
+    {
+        red();
+        printf("Dynamic Memory Allocation Failed\n");
+        exit(0);
+    }
+    while(!feof(fp))
+    {
+        read(rooms);
+        if(rooms->room_num==num&&(strcmp(rooms->d2.name,checkname)==0))
+        {
+            match++;
+            break;
+        }
+    }
+    fclose(fp);
+    return(match);
+}
+void delete(int num)
+{
+    FILE* fp1;
+    fp1=fopen("Temporary_Hotel.txt","w");
+    if(fp1==NULL)
+    {
+        red();
+        printf("Error in opening File\n");
+        exit(0);
+    }
+    fp=fopen("Hotel_Accomodation.txt","r");
+    if(fp==NULL)
+    {
+        red();
+        printf("Error in opening File\n");
+        exit(0);
+    }
+    struct hotel* rooms;
+    rooms=(struct hotel*) malloc(sizeof(struct hotel));
+    if(rooms==NULL)
+    {
+        red();
+        printf("Dynamic Memory Allocation Failed\n");
+        exit(0);
+    }
+    while(!feof(fp))
+    {
+        read(rooms);
+        if(rooms->room_num!=num)
+        {
+            fprintf(fp1,"Room Number: %d\n",rooms->room_num);
+            fprintf(fp1,"Room Type: %s\n",rooms->type);
+            fprintf(fp1,"Room Cost: %f\n",rooms->cost);
+            fprintf(fp1,"Days: %d\n",rooms->days);
+            fprintf(fp1,"Check-in Date: %d-%d-%d\n",rooms->d1.day,rooms->d1.month,rooms->d1.year);
+            fprintf(fp1,"Guest Name: %s\n",rooms->d2.name);
+            fprintf(fp1,"Mobile Number: %d\n",rooms->d2.phoneNumber);
+            fprintf(fp1,"Address: %s\n",rooms->d2.address);
+            fprintf(fp1,"Bill: %f\n",rooms->bill);           
+        }
+    }
+    fclose(fp);
+    fclose(fp1);
+    remove("Hotel_Accomodation.txt");
+    fp1=fopen("Temporary_Hotel.txt","r");
+    if(fp1==NULL)
+    {
+        red();
+        printf("Error in opening File\n");
+        exit(0);
+    }
+    fp=fopen("Hotel_Accomodation.txt","w");
+    if(fp==NULL)
+    {
+        red();
+        printf("Error in opening File\n");
+        exit(0);
+    }
+    char ch=fgetc(fp1);
+    while(ch!=EOF)
+    {
+        fputc(ch,fp);
+        ch=fgetc(fp1);
+    }
+    fclose(fp);
+    fclose(fp1);
+    remove("Temporary_Hotel.txt");
+}
+void update(int new,int num)
+{
+    FILE* fp1;
+    fp1=fopen("Temporary_Hotel.txt","w");
+    if(fp1==NULL)
+    {
+        red();
+        printf("Error in opening File\n");
+        exit(0);
+    }
+    fp=fopen("Hotel_Accomodation.txt","r");
+    if(fp==NULL)
+    {
+        red();
+        printf("Error in opening File\n");
+        exit(0);
+    }
+    struct hotel* rooms;
+    rooms=(struct hotel*) malloc(sizeof(struct hotel));
+    if(rooms==NULL)
+    {
+        red();
+        printf("Dynamic Memory Allocation Failed\n");
+        exit(0);
+    }
+    while(!feof(fp))
+    {
+        read(rooms);
+        if(rooms->room_num!=num)
+        {
+            fprintf(fp1,"Room Number: %d\n",rooms->room_num);
+            fprintf(fp1,"Room Type: %s\n",rooms->type);
+            fprintf(fp1,"Room Cost: %f\n",rooms->cost);
+            fprintf(fp1,"Days: %d\n",rooms->days);
+            fprintf(fp1,"Check-in Date: %d-%d-%d\n",rooms->d1.day,rooms->d1.month,rooms->d1.year);
+            fprintf(fp1,"Guest Name: %s\n",rooms->d2.name);
+            fprintf(fp1,"Mobile Number: %d\n",rooms->d2.phoneNumber);
+            fprintf(fp1,"Address: %s\n",rooms->d2.address);
+            fprintf(fp1,"Bill: %f\n",rooms->bill);           
+        }
+        else
+        {
+            fprintf(fp1,"Room Number: %d\n",rooms->room_num);
+            fprintf(fp1,"Room Type: %s\n",rooms->type);
+            fprintf(fp1,"Room Cost: %f\n",rooms->cost);
+            fprintf(fp1,"Days: %d\n",(rooms->days+new));
+            fprintf(fp1,"Check-in Date: %d-%d-%d\n",rooms->d1.day,rooms->d1.month,rooms->d1.year);
+            fprintf(fp1,"Guest Name: %s\n",rooms->d2.name);
+            fprintf(fp1,"Mobile Number: %d\n",rooms->d2.phoneNumber);
+            fprintf(fp1,"Address: %s\n",rooms->d2.address);
+            rooms->bill=(rooms->cost)*((rooms->days)+new);
+            fprintf(fp1,"Bill: %f\n",rooms->bill);           
+        }
+    }
+    fclose(fp);
+    fclose(fp1);
+    remove("Hotel_Accomodation.txt");
+    fp1=fopen("Temporary_Hotel.txt","r");
+    if(fp1==NULL)
+    {
+        red();
+        printf("Error in opening File\n");
+        exit(0);
+    }
+    fp=fopen("Hotel_Accomodation.txt","w");
+    if(fp==NULL)
+    {
+        red();
+        printf("Error in opening File\n");
+        exit(0);
+    }
+    char ch=fgetc(fp1);
+    while(ch!=EOF)
+    {
+        fputc(ch,fp);
+        ch=fgetc(fp1);
+    }
+    fclose(fp);
+    fclose(fp1);
+    remove("Temporary_Hotel.txt");   
+}
+int checkDetails(int ask)
+{
+    int find=0;
+    int res,resu;
+    goto L9;
+    yellow();
+L4: printf("Enter Your Room Number\n");
+    scanf("%d",&ask);
+L9: res=checkRoomNumber(ask);
+    if(res==0)
+    {
+        red();
+        printf("Please enter the correct Room Number\n");
+        printf("Room Number entered is not booked\n");
+        goto L4;
+    }
+    else
+    {
+        yellow();
+L5:     printf("Enter your Name\n");
+        scanf("%s",checkname);
+        resu=checkRoomName(ask);
+        if(resu==0)
+        {
+            red();
+            printf("Room Number and Name do not Match\n");
+            printf("Please Retry\n");
+            goto L5;
+        }
+    }
+    if(res==1&&resu==1)
+    {
+        find++;
+    }
+    return(find);
+}
+void showDetails(int num)
+{
+    fp=fopen("Hotel_Accomodation.txt","r");
+    if(fp==NULL)
+    {
+        red();
+        printf("Error in opening File\n");
+        exit(0);
+    }
+    struct hotel* rooms;
+    rooms=(struct hotel*) malloc(sizeof(struct hotel));
+    if(rooms==NULL)
+    {
+        red();
+        printf("Dynamic Memory Allocation Failed\n");
+        exit(0);
+    }
+    while(!feof(fp))
+    {
+        read(rooms);
+        if(rooms->room_num==num)
+        {
+            yellow();
+            printf("Room Number: %d\n",rooms->room_num);
+            printf("Room Type: %s\n",rooms->type);
+            printf("Room Cost: %f\n",rooms->cost);
+            printf("Days: %d\n",rooms->days);
+            printf("Check-in Date: %d-%d-%d\n",rooms->d1.day,rooms->d1.month,rooms->d1.year);
+            printf("Guest Name: %s\n",rooms->d2.name);
+            printf("Mobile Number: %d\n",rooms->d2.phoneNumber);
+            printf("Address: %s\n",rooms->d2.address);
+            printf("Bill: %f\n",rooms->bill);   
+            break;        
+        }
+    }   
+}
+void blue()
+{
+    printf("\033[0;34m");
+}
+void red()
+{
+    printf("\033[1;31m");
+}
+void yellow()
+{
+    printf("\033[0;33m");
+}
+void black()
+{
+    printf("\033[0;37m");
+}

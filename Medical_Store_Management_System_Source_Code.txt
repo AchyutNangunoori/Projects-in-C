@@ -1,0 +1,382 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+struct medicine
+{
+    char name[20];
+    int quantity;
+    float price;
+};
+void recordData(struct medicine*);
+void sellMedicine();
+void read(struct medicine*);
+void update(struct medicine*);
+void searchMedicine();
+void showall();
+int checkMed();
+void addQuantity();
+void deleteMedicine();
+void updatePrice();
+void blue(void);
+void red(void);
+void yellow(void);
+void black(void);
+FILE* fp;
+char tempmed[20];
+void main()
+{
+    blue();
+    printf("WELCOME TO THE MEDICAL STORE MANAGEMENT SYSTEM\n");
+    int ask;
+    fp=fopen("Medical_Store.txt","a");
+    if(fp==NULL)
+    {
+        red();
+        printf("Unable to Open File to record DATA\n");
+        exit(0);
+    }
+    fclose(fp);
+    struct medicine* med;
+    med=(struct medicine*) malloc(sizeof(struct medicine));
+    if(med==NULL)
+    {
+        red();
+        printf("Dynamic Memory Allocation Failed\n");
+        exit(0);
+    }
+    int choice;
+    do 
+    {
+        red();
+        printf("MENU\n");
+        blue();
+        printf("1. Add Medicine\n");
+        printf("2. Sell Medicine\n");
+        printf("3. Show all Medicines\n");
+        printf("4. Search for Medicine\n");
+        printf("5. Update Price\n");
+        printf("6. Delete Medicine\n");
+        printf("7. Exit\n");
+        printf("Enter your choice: ");
+        black();
+        scanf("%d", &choice);
+        switch (choice) 
+        {
+L1:         case 1:yellow();
+                   printf("Enter Medicine Name to be added\n");
+                   scanf("%s",tempmed);
+                   int res=checkMed();
+                   if(res==0)
+                   {
+                    strcpy(med->name,tempmed);
+                    printf("Enter Quantity\n");
+                    scanf("%d",&med->quantity);
+                    printf("Enter price\n");
+                    scanf("%f",&med->price);
+                    recordData(med);
+                    blue();
+                    printf("Medicine Successfully Added\n");
+                   }
+                   else
+                   {
+                    red();
+                    printf("Medicine Already Exists\n");
+                    blue();
+                    printf("Enter 1 if you want to add quantity\n");
+                    scanf("%d",&ask);
+                    if(ask==1)
+                    {
+                        addQuantity();
+                        blue();
+                        printf("Quantity Successfully Updated\n");
+                    }
+                    else
+                    {
+                        goto L1;
+                    }
+                   }
+                   break;
+            case 2:yellow();
+                   printf("Enter Medicine Name to be sold\n");
+                   scanf("%s",tempmed);       
+                   sellMedicine();
+                   break;
+            case 3:showall();
+                   break;
+            case 4:searchMedicine();
+                   break;     
+            case 5:updatePrice();
+                   break;              
+            case 6:deleteMedicine();
+                   break;         
+            case 7:blue();
+                   printf("Thank You\n");
+                   break;       
+            default:red();
+                    printf("Invalid Option\n");       
+        }
+    }while(choice!=7);
+}
+void recordData(struct medicine* m)
+{
+    fp=fopen("Medical_Store.txt","a");
+    fprintf(fp,"Name: %s\n",m->name);
+    fprintf(fp,"Quantity: %d\n",m->quantity);
+    fprintf(fp,"Price: %f\n",m->price);
+    fclose(fp);
+}
+void sellMedicine()
+{
+    int found=0, quan;
+    fp=fopen("Medical_Store.txt","r");
+    struct medicine* med;
+    med=(struct medicine*) malloc(sizeof(struct medicine));
+    while(!feof(fp))
+    {
+        read(med);
+        if(strcmp(tempmed,med->name)==0)
+        {
+            found++;
+            yellow();
+            printf("Enter Quantity you want to sell\n");
+            scanf("%d",&quan);
+            if(quan<=med->quantity)
+            {
+                red();
+                printf("Amount: %f\n",(med->price*quan));
+                med->quantity=med->quantity-quan;
+                update(med);
+                blue();
+                printf("SOLD\n");
+            }
+            else
+            {
+                red();
+                printf("Quantity Not Sufficient\n");
+            }
+            break;
+        }
+    }
+    if(found==0)
+    {
+        printf("Medicine Not found\n");
+    }
+    fclose(fp);
+}
+void read(struct medicine* m)
+{
+    fscanf(fp,"Name: %s\n",m->name);
+    fscanf(fp,"Quantity: %d\n",&m->quantity);
+    fscanf(fp,"Price: %f\n",&m->price);
+}
+void update(struct medicine* m)
+{
+    fp=fopen("Medical_Store.txt","r");
+    FILE* fp1;
+    fp1=fopen("Update.txt","w");
+    struct medicine* med;
+    med=(struct medicine*) malloc(sizeof(struct medicine));
+    while(!feof(fp))
+    {
+        read(med);
+        if(strcmp(tempmed,med->name)==0)
+        {
+            fprintf(fp1,"Name: %s\n",m->name);
+            fprintf(fp1,"Quantity: %d\n",m->quantity);
+            fprintf(fp1,"Price: %f\n",m->price);
+        }
+        else
+        {
+            fprintf(fp1,"Name: %s\n",med->name);
+            fprintf(fp1,"Quantity: %d\n",med->quantity);
+            fprintf(fp1,"Price: %f\n",med->price);
+        }     
+    }
+    fclose(fp);
+    fclose(fp1);
+    remove("Medical_Store.txt");
+    fp=fopen("Medical_Store.txt","w");
+    fp1=fopen("Update.txt","r");
+    char ch=fgetc(fp1);
+    while(ch!=EOF)
+    {
+        fputc(ch,fp);
+        ch=fgetc(fp1);
+    }
+    fclose(fp1);
+    fclose(fp);
+    remove("Update.txt");  
+}
+void showall()
+{
+    fp=fopen("Medical_Store.txt","r");
+    char ch=fgetc(fp);
+    while(ch!=EOF)
+    {
+        printf("%c",ch);
+        ch=fgetc(fp);
+    }
+    fclose(fp);
+}
+void searchMedicine()
+{
+    char tempm[20];
+    yellow();
+    printf("Enter Medicine Name\n");
+    scanf("%s",tempm);
+    int found=0;
+    fp=fopen("Medical_Store.txt","r");
+    struct medicine* med;
+    med=(struct medicine*) malloc(sizeof(struct medicine));
+    while(!feof(fp))
+    {
+        read(med);
+        if(strcmp(tempm,med->name)==0)
+        {
+            found++;
+            printf("Name: %s\n",med->name);
+            printf("Quantity: %d\n",med->quantity);
+            printf("Price: %f\n",med->price);
+            break;
+        }
+    }
+    fclose(fp);
+    if(found==0)
+    {
+        red();
+        printf("Medicine Not Found\n");
+    }
+}
+int checkMed()
+{
+    int found=0;
+    fp=fopen("Medical_Store.txt","r");
+    struct medicine* med;
+    med=(struct medicine*) malloc(sizeof(struct medicine));
+    while(!feof(fp))
+    {
+        read(med);
+        if(strcmp(tempmed,med->name)==0)
+        {
+            found++;
+            break;
+        }
+    }
+    fclose(fp);
+    return(found);
+}
+void addQuantity()
+{
+    int quan;
+    yellow();
+    printf("Enter Quantity you want to add\n");
+    scanf("%d",&quan);
+    fp=fopen("Medical_Store.txt","r");
+    struct medicine* med;
+    med=(struct medicine*) malloc(sizeof(struct medicine));
+    while(!feof(fp))
+    {
+        read(med);
+        if(strcmp(tempmed,med->name)==0)
+        {
+            med->quantity+=quan;
+            break;
+        }
+    }
+    fclose(fp);
+    update(med);
+}
+void deleteMedicine()
+{
+    //char tempm[20];
+    yellow();
+    printf("Enter Medicine Name\n");
+    scanf("%s",tempmed);
+    int res=checkMed();
+    if(res==0)
+    {
+        red();
+        printf("Medicine not found\n");
+    }
+    else
+    {
+        FILE* fp1;
+        fp1=fopen("tempmedi.txt","w");
+        fp=fopen("Medical_Store.txt","r");
+        struct medicine* med;
+        med=(struct medicine*) malloc(sizeof(struct medicine));
+        while(!feof(fp))
+        {
+            read(med);
+            if(strcmp(tempmed,med->name)!=0)
+            {
+                fprintf(fp1,"Name: %s\n",med->name);
+                fprintf(fp1,"Quantity: %d\n",med->quantity);
+                fprintf(fp1,"Price: %f\n",med->price);
+            }
+        }
+        fclose(fp);
+        fclose(fp1);
+        remove("Medical_Store.txt");
+        fp1=fopen("tempmedi.txt","r");
+        fp=fopen("Medical_Store.txt","w");
+        char ch=fgetc(fp1);
+        while(ch!=EOF)
+        {
+            fputc(ch,fp);
+            ch=fgetc(fp1);
+        }
+        fclose(fp1);
+        fclose(fp);
+        remove("tempmedi.txt");
+    }
+    blue();
+    printf("Medicine Deleted Successfully\n");
+}
+void updatePrice()
+{
+    float price;
+    yellow();
+    printf("Enter Medicine Name\n");
+    scanf("%s",tempmed);
+    int found=0;
+    fp=fopen("Medical_Store.txt","r");
+    struct medicine* med;
+    med=(struct medicine*) malloc(sizeof(struct medicine));
+    printf("Enter Updated  Price\n");
+    scanf("%f",&price);
+    while(!feof(fp))
+    {
+        read(med);
+        if(strcmp(tempmed,med->name)==0)
+        {
+            found++;
+            med->price=price;
+            update(med);
+            blue();
+            printf("Price Updated Successfully\n");
+            break;
+        }
+    }
+    if(found==0)
+    {
+        red();
+        printf("Medicine Not Found\n");
+    }   
+}
+void blue()
+{
+    printf("\033[0;34m");
+}
+void red()
+{
+    printf("\033[1;31m");
+}
+void yellow()
+{
+    printf("\033[0;33m");
+}
+void black()
+{
+    printf("\033[0;37m");
+}

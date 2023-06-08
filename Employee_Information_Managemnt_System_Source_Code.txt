@@ -1,0 +1,406 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+struct employee
+{
+    char name[10];
+    int number;
+    struct address
+    {
+        char locality[10];
+        char city[10];
+        int pin;
+    }addr;
+    struct salary
+    {
+        float bsal,hra,ta,it,pf,netsal,grossal;
+    }sal;
+};
+void recordData(struct employee*);
+void read(struct employee*);
+void search(int);
+void modify(int);
+void change(struct employee*,int);
+void delete(int);
+void readall(void);
+void output(struct employee*);
+void blue(void);
+void red(void);
+void yellow(void);
+void black(void);
+char parameter[21];
+FILE *fp;
+void main()
+{
+    blue();
+    printf("WELCOME TO THE EMPLOYEE INFORMATION MANAGEMENT SYSTEM\n");
+    int choice, id;
+    struct employee* empPtr;
+    empPtr=(struct employee*) malloc(sizeof(struct employee));
+    if(empPtr==NULL)
+    {
+        red();
+        printf("Memory Not Allocated\n");
+        exit(0);
+    }
+    do 
+    {
+        blue();
+        printf("MENU\n");
+        yellow();
+        printf("1. Add Employee\n");
+        printf("2. Search Employee by ID\n");
+        printf("3. Modify Employee Details\n");
+        printf("4. Delete an Employee Record\n");
+        printf("5. Show Details of all Employees\n");
+        printf("6. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        switch (choice) 
+        {
+            case 1:black();
+                   printf("Enter Employee Name\n");
+                   scanf("%s",empPtr->name);
+                   printf("Enter Employee Number\n");
+                   scanf("%d",&empPtr->number);
+                   printf("Address Details\n");
+                   printf("Enter Locality\n");
+                   scanf("%s",empPtr->addr.locality);
+                   printf("Enter City\n");
+                   scanf("%s",empPtr->addr.city);
+                   printf("Enter Pin Code\n");
+                   scanf("%d",&empPtr->addr.pin);
+                   printf("Salary Details\n");
+                   printf("Enter Basic Salary\n");
+                   scanf("%f",&empPtr->sal.bsal);
+                   printf("Enter House Rent Allowance\n");
+                   scanf("%f",&empPtr->sal.hra);
+                   printf("Enter Travel Allowance\n");
+                   scanf("%f",&empPtr->sal.ta);
+                   printf("Enter Provident Fund\n");
+                   scanf("%f",&empPtr->sal.pf);
+                   printf("Enter Income Tax\n");              
+                   scanf("%f",&empPtr->sal.it);
+                   empPtr->sal.grossal=empPtr->sal.bsal+empPtr->sal.hra+empPtr->sal.ta;
+                   empPtr->sal.netsal=empPtr->sal.grossal-empPtr->sal.pf+empPtr->sal.it;
+                   fp=fopen("Employee_Details.txt","a");
+                   recordData(empPtr);
+                   break;
+            case 2:yellow();
+                   printf("Enter Employee number to be searched for\n");
+                   scanf("%d",&id);
+                   search(id);
+                   break;
+            case 3:yellow();
+                   printf("Enter Employee number whose details you want to modify\n");
+                   scanf("%d",&id);
+                   modify(id);
+                   break;
+            case 4:yellow();
+                   printf("Enter Employee number whose record you want to delete\n");
+                   scanf("%d",&id);
+                   delete(id);
+                   break;
+            case 5:readall();
+                   break;              
+            case 6:blue();
+                   printf("Thank You\n");
+                   break;
+            default:red();
+                    printf("Invalid Choice\n");  
+        } 
+    }while(choice!=6);
+}
+void recordData(struct employee* emp1)
+{
+    fprintf(fp,"Employee Name: %s\nEmployee Number: %d\n",emp1->name,emp1->number);
+    fprintf(fp,"Location: %s\nCity: %s\nPin Code: %d\n",emp1->addr.locality,emp1->addr.city,emp1->addr.pin);
+    fprintf(fp,"Basic Salary: %f\nHouse Rent Allowance: %f\nTravel Allowance: %f\n",emp1->sal.bsal,emp1->sal.hra,emp1->sal.ta);
+    fprintf(fp,"Provident Fund: %f\nIncome Tax: %f\n",emp1->sal.pf,emp1->sal.it);
+    fprintf(fp,"Gross Salary: %f\nNet Salary: %f\n",emp1->sal.grossal,emp1->sal.netsal);
+    fclose(fp);
+}
+void search(int num)
+{
+    fp=fopen("Employee_Details.txt","r");
+    if(fp==NULL)
+    {
+        red();
+        printf("File not opened\n");
+    }
+    struct employee *emp;
+    emp=(struct employee*) malloc(sizeof(struct employee));
+    if(emp==NULL)
+    {
+        red();
+        printf("Facing Issues in memory allocation\n");
+        exit(0);
+    }
+    int flag = 0;
+    while (!feof(fp)) 
+    {
+        read(emp);
+        if(emp->number==num) 
+        {
+            yellow();
+            printf("Employee Found\n");
+            printf("Employee Name: %s\n",emp->name);
+            printf("Employee Number: %d\n",emp->number);
+            printf("Address Details\n");
+            printf("Location: %s\n",emp->addr.locality);
+            printf("City: %s\n",emp->addr.city);
+            printf("Pin Code: %d\n",emp->addr.pin);
+            printf("Salary Details\n");
+            printf("Basic Salary: %f\n",emp->sal.bsal);
+            printf("Net Salary: %f\n",emp->sal.netsal);
+            flag = 1;
+            break;
+        }
+    }
+    if(!flag) 
+    {
+        red();
+        printf("Sorry, Employee not found.\n");
+    }   
+    fclose(fp);
+}
+void modify(int num)
+{   
+    int choice=0;
+    fp=fopen("Employee_Details.txt","r");
+    if(fp==NULL)
+    {
+        red();
+        printf("File not opened\n");
+    }
+    struct employee *emp;
+    emp=(struct employee*) malloc(sizeof(struct employee));
+    if(emp==NULL)
+    {
+        red();
+        printf("Facing Issues in memory allocation\n");
+        exit(0);
+    }
+    int flag = 0;
+    while (!feof(fp)) 
+    {
+        read(emp);
+        if(emp->number==num) 
+        {
+            blue();
+            printf("Employee Found\n");
+            output(emp);
+            fclose(fp);
+            do
+            {
+                yellow();
+                printf("Enter the parameter you want to edit\n");
+                printf("Enter the parameter name by replacing spaces with underscore sysmbol\n");
+                scanf("%s",parameter);
+                change(emp,num);
+                blue();
+                printf("Employee Details Successfully Updated\n");
+                yellow();
+                printf("Do you want to change any other parameter\n");
+                printf("If yes, enter 1 or else enter any number\n");
+                scanf("%d",&choice);
+            }while(choice==1);
+            flag = 1;
+            break;
+        }
+    }
+    if(!flag) 
+    {
+        red();
+        printf("Sorry, Employee not found.\n");
+    }   
+    fclose(fp);
+}
+void read(struct employee* emp)
+{
+    fscanf(fp,"Employee Name: %s\nEmployee Number: %d\n",emp->name,&emp->number);
+    fscanf(fp,"Location: %s\nCity: %s\nPin Code: %d\n",emp->addr.locality,emp->addr.city,&emp->addr.pin);
+    fscanf(fp,"Basic Salary: %f\nHouse Rent Allowance: %f\nTravel Allowance: %f\n",&emp->sal.bsal,&emp->sal.hra,&emp->sal.ta);
+    fscanf(fp,"Provident Fund: %f\nIncome Tax: %f\n",&emp->sal.pf,&emp->sal.it);
+    fscanf(fp,"Gross Salary: %f\nNet Salary: %f\n",&emp->sal.grossal,&emp->sal.netsal);
+}
+void change(struct employee* em,int num)
+{
+    if(strcmp(parameter,"Name")==0)
+    {
+        printf("Enter updated Employee Name\n");
+        scanf("%s",em->name);
+    }
+    else if(strcmp(parameter,"Location")==0)
+    {
+        printf("Enter New Locality\n");
+        scanf("%s",em->addr.locality);
+    }
+    else if(strcmp(parameter,"City")==0)
+    {
+        printf("Enter New City\n");
+        scanf("%s",em->addr.city);
+    }
+    else if(strcmp(parameter,"Pin_Code")==0)
+    {
+        printf("Enter New Pin Code\n");
+        scanf("%d",em->addr.pin);
+    }
+    else if(strcmp(parameter,"Basic_Salary")==0)
+    {
+        printf("Enter Updated Basic Salary\n");
+        scanf("%s",em->sal.bsal);
+    }
+    else if(strcmp(parameter,"House_Rent_Allowance")==0)
+    {
+        printf("Enter Updated House Rent Alowance\n");
+        scanf("%s",em->sal.hra);
+    }
+    else if(strcmp(parameter,"Travel_Allowance")==0)
+    {
+        printf("Enter Updated Travel Allowance\n");
+        scanf("%s",em->sal.ta);
+    }
+    else if(strcmp(parameter,"Provident_Fund")==0)
+    {
+        printf("Enter Updated Provident Fund\n");
+        scanf("%s",em->sal.pf);
+    }
+    else if(strcmp(parameter,"Income_Tax")==0)
+    {
+        printf("Enter Updated Income Tax\n");
+        scanf("%s",em->sal.it);
+    }
+    else
+    {
+        red();
+        printf("Invalid Parameter\n");
+    }
+    em->sal.grossal=em->sal.bsal+em->sal.hra+em->sal.ta;
+    em->sal.netsal=em->sal.grossal-em->sal.pf+em->sal.it;
+    FILE* fp1;
+    fp1=fopen("Employee1.txt","w");
+    fp=fopen("Employee_Details.txt","r");
+    if(fp==NULL)
+    {
+        red();
+        printf("Original File Not Opened\n");
+    }
+    struct employee* e;
+    e=(struct employee*) malloc(sizeof(struct employee));
+    while (!feof(fp)) 
+    {
+        read(e);
+        if(e->number!=num)
+        {
+            fprintf(fp1,"Employee Name: %s\nEmployee Number: %d\n",e->name,e->number);
+            fprintf(fp1,"Location: %s\nCity: %s\nPin Code: %d\n",e->addr.locality,e->addr.city,e->addr.pin);
+            fprintf(fp1,"Basic Salary: %f\nHouse Rent Allowance: %f\nTravel Allowance: %f\n",e->sal.bsal,e->sal.hra,e->sal.ta);
+            fprintf(fp1,"Provident Fund: %f\nIncome Tax: %f\n",e->sal.pf,e->sal.it);
+            fprintf(fp1,"Gross Salary: %f\nNet Salary: %f\n",e->sal.grossal,e->sal.netsal);
+        }
+        else
+        {
+            fprintf(fp1,"Employee Name: %s\nEmployee Number: %d\n",em->name,em->number);
+            fprintf(fp1,"Location: %s\nCity: %s\nPin Code: %d\n",em->addr.locality,em->addr.city,em->addr.pin);
+            fprintf(fp1,"Basic Salary: %f\nHouse Rent Allowance: %f\nTravel Allowance: %f\n",em->sal.bsal,em->sal.hra,em->sal.ta);
+            fprintf(fp1,"Provident Fund: %f\nIncome Tax: %f\n",em->sal.pf,em->sal.it);
+            fprintf(fp1,"Gross Salary: %f\nNet Salary: %f\n",em->sal.grossal,em->sal.netsal);
+        }
+    }
+    fclose(fp1);
+    remove("Employee_Details.txt");
+    fp=fopen("Employee_Details.txt","w");
+    fp1=fopen("Employee1.txt","r");
+    char ch=fgetc(fp1);
+    while(ch!=EOF)
+    {
+        fputc(ch,fp);
+        ch=fgetc(fp1);
+    }
+    fclose(fp1);
+    remove("Employee1.txt");
+}
+void delete(int num)
+{
+    fp=fopen("Employee_Details.txt","r");
+    FILE* fp2;
+    fp2=fopen("temp_employee.txt","w");
+    struct employee* emplo;
+    emplo=(struct employee*) malloc(sizeof(struct employee));
+    while(!feof(fp))
+    {
+        read(emplo);
+        if(emplo->number!=num)
+        {
+            fprintf(fp2,"Employee Name: %s\nEmployee Number: %d\n",emplo->name,emplo->number);
+            fprintf(fp2,"Location: %s\nCity: %s\nPin Code: %d\n",emplo->addr.locality,emplo->addr.city,emplo->addr.pin);
+            fprintf(fp2,"Basic Salary: %f\nHouse Rent Allowance: %f\nTravel Allowance: %f\n",emplo->sal.bsal,emplo->sal.hra,emplo->sal.ta);
+            fprintf(fp2,"Provident Fund: %f\nIncome Tax: %f\n",emplo->sal.pf,emplo->sal.it);
+            fprintf(fp2,"Gross Salary: %f\nNet Salary: %f\n",emplo->sal.grossal,emplo->sal.netsal);
+        }
+    }
+    fclose(fp2);
+    remove("Employee_Details.txt");
+    fp=fopen("Employee_Details.txt","w");
+    fp2=fopen("temp_employee.txt","r");
+    char ch=fgetc(fp2);
+    while(ch!=EOF)
+    {
+        fputc(ch,fp);
+        ch=fgetc(fp2);
+    }
+    fclose(fp);
+    fclose(fp2);
+    remove("temp_employee.txt");
+    blue();
+    printf("Employee Details Successfully Deleted\n");
+}
+void readall()
+{
+    fp=fopen("Employee_Details.txt","r");
+    if(fp==NULL)
+    {
+        printf("No Employee Found\n");
+    }
+    char ch=fgetc(fp);
+    while(ch!=EOF)
+    {
+        printf("%c",ch);
+        ch=fgetc(fp);
+    }
+    fclose(fp);
+}
+void output(struct employee* employe)
+{
+    printf("Employee Found\n");
+    printf("Employee Name: %s\n",employe->name);
+    printf("Employee Number: %d\n",employe->number);
+    printf("Address Details\n");
+    printf("Location: %s\n",employe->addr.locality);
+    printf("City: %s\n",employe->addr.city);
+    printf("Pin Code: %d\n",employe->addr.pin);
+    printf("Salary Details\n");
+    printf("Basic Salary: %f\n",employe->sal.bsal);
+    printf("House Rent Allowance: %f\n",employe->sal.hra);
+    printf("Travel Allowance: %f\n",employe->sal.ta);
+    printf("Provident Fund: %f\n",employe->sal.pf);
+    printf("Income Tax: %f\n",employe->sal.it);
+    printf("Net Salary: %f\n",employe->sal.netsal);
+}
+void blue()
+{
+    printf("\033[0;34m");
+}
+void red()
+{
+    printf("\033[1;31m");
+}
+void yellow()
+{
+    printf("\033[0;33m");
+}
+void black()
+{
+    printf("\033[0;37m");
+}

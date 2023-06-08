@@ -1,0 +1,222 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+struct airline
+{
+    char name[10];
+    char type;
+    int numOfSeats;
+    float bill;
+};
+char tempn[10];
+int business=30, first=30, economy=40;
+FILE* fp;
+void recordData(struct airline*);
+void cancelReservation();
+void read(struct airline*);
+void blue(void);
+void red(void);
+void yellow(void);
+void black(void);
+void main()
+{
+    char temp;
+    int confirm=0;
+    fp=fopen("Airline_Reservation.txt","a");
+    fclose(fp);
+    blue();
+    printf("WELCOME TO AIRLINE RESERVATION SYSTEM\n");
+    printf("The following reservation is for flight EK7030 from Hyderabad to London\n");
+    struct airline* seat;
+    seat=(struct airline*) malloc(sizeof(struct airline));
+    int choice;
+    do 
+    {
+        red();
+        printf("MENU\n");
+        yellow();
+        printf("1. Reserve Seats\n");
+        printf("2. Cancel Reservation\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        black();
+        scanf("%d", &choice);
+        switch (choice) 
+        {
+            case 1: yellow();
+                    printf("Enter your Name\n");
+                    scanf("%s",seat->name);
+                    getchar();
+                    blue();
+                    printf("Typs of seats available\n");
+                    printf("Type\t\t\tNumbr of Vacant Seats\tCost Per Seat\n");
+                    printf("1. First Class\t\t%d\t\t\t3699\n",first);
+                    printf("2. Business Class\t%d\t\t\t2999\n",business);
+                    printf("3. Economy Class\t%d\t\t\t1699\n",economy);
+                    yellow();
+                    printf("Enter Type of seat you want\n");
+                    printf("Enter F for First class\n");
+                    printf("Enter B for Business class\n");
+                    printf("Enter E for Economy class\n");
+                    scanf("%c",&temp);
+                    seat->type=temp;
+                    getchar();
+L1:                 printf("Enter Number of seats you want to reserve\n");
+                    scanf("%d",&seat->numOfSeats);
+                    printf("%c\n%c\n",temp,seat->type);
+                    if(temp=='F')
+                    {
+                        if(seat->numOfSeats<=first)
+                        {
+                            seat->bill=(seat->numOfSeats)*3699;
+                        }
+                        else
+                        {
+                            red();
+                            printf("Required Number of seats not available\n");
+                            goto L1;
+                        }
+                    }
+                    else if(temp=='B')
+                    {
+                        if(seat->numOfSeats<=business)
+                        {
+                            seat->bill=(seat->numOfSeats)*2999;
+                        }
+                        else
+                        {
+                            red();
+                            printf("Required Number of seats not available\n");
+                            goto L1;
+                        }
+                    }
+                    else if(temp=='E')
+                    {
+                        if(seat->numOfSeats<=economy)
+                        {
+                            seat->bill=(seat->numOfSeats)*1699;
+                        }
+                        else
+                        {
+                            red();
+                            printf("Required number of seats not available\n");
+                            goto L1;
+                        }
+                    }
+                    else
+                    {
+                        red();
+                        printf("Invalid Option\n");
+                        break;
+                    }
+                    yellow();
+                    printf("Bill=%f\n",seat->bill);
+                    printf("Confirm your reservation\n");
+                    printf("Enter 1 for confirmation or enter 0\n");
+                    scanf("%d",&confirm);
+                    if(confirm==1)
+                    {
+                        recordData(seat);
+                        blue();
+                        printf("Reservation Successful\n");
+                        printf("Seat Numbers will be alloated while issuing boarding passes\n");
+                        printf("Thank You for Flying with us\n");
+                    }
+                    break;
+            case 2:yellow();
+                   printf("Enter your name\n");
+                   scanf("%s",tempn);
+                   cancelReservation();    
+                   break;  
+            case 3:blue();
+                   printf("Thank You for chosing our sirline services\n");
+                   break;
+            default:red();
+                    printf("Invaid Choice\n");                
+        }
+    }while(choice!=3);
+}
+void recordData(struct airline* seat)
+{
+    fp=fopen("Airline_Reservation.txt","a");
+    fprintf(fp,"Name: %s\n",seat->name);
+    fprintf(fp,"Type of seats: %c\nNumber of Seats: %d\n",seat->type,seat->numOfSeats);
+    fprintf(fp,"Bill: %f\n",seat->bill);
+    fclose(fp);
+    if(seat->type=='F')
+    {
+        first=first-(seat->numOfSeats);
+    }
+    else if(seat->type=='B')
+    {
+        business=business-(seat->numOfSeats);
+    }
+    else
+    {
+        economy=economy-(seat->numOfSeats);
+    }   
+}
+void cancelReservation()
+{
+    fp=fopen("Airline_Reservation.txt","r");
+    FILE* fp2;
+    fp2=fopen("tempairline.txt","w");
+    struct airline* air;
+    air=(struct airline*) malloc(sizeof(struct airline));
+    fp=fopen("Airline_Reservation.txt","r");
+    while(!feof(fp))
+    {
+        read(air);
+        if(strcmp(air->name,tempn)!=0)
+        {
+            fprintf(fp2,"Name: %s\n",air->name);
+            fprintf(fp2,"Type of seats: %c\nNumber of Seats: %d\n",air->type,air->numOfSeats);
+            fprintf(fp2,"Bill: %f\n",air->bill);
+        }
+        else
+        {
+            if(air->type=='F')
+            first=first+air->numOfSeats;
+            else if(air->type=='B')
+            business=business+air->numOfSeats;
+            else
+            economy=economy+air->numOfSeats;
+        }
+    }
+    fclose(fp2);
+    fclose(fp);
+    remove("Airline_Reservation.txt");
+    fp=fopen("Airline_Reservation.txt","w");
+    fp2=fopen("tempairline.txt","r");
+    char ch=fgetc(fp2);
+    while(ch!=EOF)
+    {
+        fputc(ch,fp);
+        ch=fgetc(fp2);
+    }
+    fclose(fp2);
+    fclose(fp);
+    remove("tempairline.txt");
+}
+void read(struct airline* air)
+{
+    fscanf(fp,"Name: %s\n",air->name);
+    fscanf(fp,"Type of seats: %c\nNumber of Seats: %d\n",&air->type,&air->numOfSeats);
+    fscanf(fp,"Bill: %f\n",&air->bill);
+}
+void blue()
+{
+    printf("\033[0;34m");
+}
+void red()
+{
+    printf("\033[1;31m");
+}
+void yellow()
+{
+    printf("\033[0;33m");
+}
+void black()
+{
+    printf("\033[0;37m");
+}
