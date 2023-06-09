@@ -1,0 +1,145 @@
+#include<stdio.h>
+#include<stdlib.h>
+struct currency
+{
+    int amount;
+    int one_hundred, two_hundred, five_hundred, thousand;
+    int count;
+};
+void main()
+{
+    struct currency notes;
+    notes.one_hundred=0;
+    notes.two_hundred=0;
+    notes.five_hundred=0;
+    notes.thousand=0;
+    notes.count=0;
+    printf("Enter Amount you want\n");
+    scanf("%d",&notes.amount);
+    if(notes.amount>18000)
+    {
+        printf("Not Sufficient\n");
+        exit(0);
+    }
+    else if(notes.amount%100!=0)
+    {
+        printf("Not Available\n");
+        exit(0);
+    }
+    else
+    {
+        if(notes.amount<=1000)
+        {
+            notes.one_hundred=notes.amount/100;
+        }
+        else if(notes.amount>1000&&notes.amount<=3000)
+        {
+            int temp=notes.amount-1000;
+            if(temp%200==0)
+            {
+                notes.one_hundred=10;
+                notes.count=10;
+                notes.two_hundred=(temp/200);
+                notes.count+=(temp/200);
+            }
+            else
+            {
+                temp=notes.amount-900;
+                notes.one_hundred=9;
+                notes.count=9;
+                notes.two_hundred=(temp/200);
+                notes.count+=(temp/200);
+            }
+        }
+        else if(notes.amount>3000&&notes.amount<=8000)
+        {
+            int temp=notes.amount-3000;
+            notes.one_hundred=10;
+            notes.two_hundred=10;
+            notes.five_hundred=temp/500;
+            int temp1=temp%500;
+            if(temp1==100)
+            {
+                notes.two_hundred-=2;
+            }
+            if(temp1==200)
+            {
+                notes.one_hundred--;
+                notes.two_hundred--;
+            }
+            if(temp1==300)
+            {
+                notes.two_hundred--;
+            }
+            if(temp1==400)
+            {
+                notes.one_hundred--;
+            }
+            if(temp1!=0)
+            {
+                notes.five_hundred++;
+            }
+        }
+        else
+        {
+            int temp=notes.amount-8000;
+            notes.one_hundred=10;
+            notes.two_hundred=10;
+            notes.five_hundred=10;
+            notes.thousand=temp/1000;
+            int temp1=temp%1000;
+            if(temp1==100)
+            {
+                notes.five_hundred--;
+                notes.two_hundred-=2;
+            }
+            if(temp1==200)
+            {
+                notes.five_hundred--;
+                notes.two_hundred--;
+                notes.one_hundred--;
+            }
+            if(temp1==300)
+            {
+                notes.five_hundred--;
+                notes.two_hundred--;
+            }
+            if(temp1==400)
+            {
+                notes.five_hundred--;
+                notes.one_hundred--;
+            }
+            if(temp1==500)
+            {
+                notes.five_hundred--;
+            }
+            if(temp1==600)
+            {
+                notes.two_hundred-=2;
+            }
+            if(temp1==700)
+            {
+                notes.two_hundred--;
+                notes.one_hundred--;
+            }
+            if(temp1==800)
+            {
+                notes.two_hundred--;
+            }
+            if(temp1==900)
+            {
+                notes.one_hundred--;
+            }
+            if(temp1!=0)
+            {
+                notes.thousand++;
+            }
+        }
+    }
+    notes.count=notes.one_hundred+notes.two_hundred+notes.five_hundred+notes.thousand;
+    printf("%d-100 rs notes\n",notes.one_hundred);
+    printf("%d-200 rs notes\n",notes.two_hundred);
+    printf("%d-500 rs notes\n",notes.five_hundred);
+    printf("%d-1000 rs notes\n",notes.thousand);
+    printf("The Amount can be served in a maximum of %d notes with the given denominations\n",notes.count);
+}
